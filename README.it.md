@@ -5,7 +5,7 @@
 [![Validate](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml/badge.svg)](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41bdf5)](https://hacs.xyz/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-41bdf5)](https://www.home-assistant.io/)
-[![Versione](https://img.shields.io/badge/versione-0.2.0-orange)](custom_components/we_eat/manifest.json)
+[![Versione](https://img.shields.io/badge/versione-0.2.1-orange)](custom_components/we_eat/manifest.json)
 [![Licenza](https://img.shields.io/badge/licenza-MIT-green)](LICENSE)
 
 🇬🇧 [Read in English](README.md)
@@ -165,6 +165,10 @@ entity: sensor.we_eat_menu
 | `entity` | `sensor.we_eat_menu` | il sensore del menu |
 | `plan_entity` | `sensor.we_eat_piano_settimana` | il sensore del piano settimanale |
 | `kcal_entity` | `sensor.we_eat_kcal_consumate` | il sensore delle calorie |
+
+Se rinomini il dispositivo cambiano anche gli ID delle sue entità, quindi questi potrebbero non
+corrispondere ai tuoi. Raramente serve impostarli: quando un ID non esiste, la card riconosce
+ciascuno dei suoi tre sensori dagli attributi che solo quel sensore ha.
 
 - **Oggi** — ogni pasto previsto con alimenti e kcal, un pulsante *Fatto come da piano* per pasto, una
   casella di testo libero per gli extra (con un campo kcal facoltativo che evita la chiamata all'AI),

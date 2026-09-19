@@ -14,7 +14,8 @@ PROVIDER_NONE = "none"
 # The card is served by the integration itself, so there is no Lovelace resource to add by hand.
 STATIC_URL = "/we_eat_static"
 CARD_FILENAME = "we-eat-card.js"
-KEY_FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
+KEY_STATIC_PATH = f"{DOMAIN}_static_path"
+KEY_CARD_URL = f"{DOMAIN}_card_url"
 
 DEFAULT_MEAL_TIMES = {
     "colazione": "07:30",

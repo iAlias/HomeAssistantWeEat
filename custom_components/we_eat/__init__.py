@@ -21,7 +21,8 @@ from .const import (
     CARD_FILENAME,
     CONF_RECIPES,
     DOMAIN,
-    KEY_FRONTEND_REGISTERED,
+    KEY_CARD_URL,
+    KEY_STATIC_PATH,
     MEALS,
     STATIC_URL,
 )
@@ -68,25 +69,31 @@ def _coordinator(hass: HomeAssistant) -> WeEatCoordinator:
     return entries[0].runtime_data
 
 
-async def _async_register_card(hass: HomeAssistant) -> None:
-    """Serve the card and load it in the UI, so there is no resource to add by hand."""
-    if hass.data.get(KEY_FRONTEND_REGISTERED):
+async def _async_serve_card(hass: HomeAssistant) -> None:
+    """Serve the card and load it in the UI, so there is no resource to add by hand.
+
+    Safe to call repeatedly: each half is flagged only once it has actually succeeded, so a
+    failure — or a frontend that is not up yet — is retried on the next call instead of being
+    silently skipped forever.
+    """
+    if not hass.data.get(KEY_STATIC_PATH):
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), True)]
+        )
+        hass.data[KEY_STATIC_PATH] = True
+
+    if hass.data.get(KEY_CARD_URL) or "frontend" not in hass.config.components:
         return
-    hass.data[KEY_FRONTEND_REGISTERED] = True
+    # Imported here: the frontend package is absent in the test environment.
+    from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
 
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), True)]
-    )
-    if "frontend" in hass.config.components:
-        # Imported here: the frontend package is absent in the test environment.
-        from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
-
-        integration = await async_get_integration(hass, DOMAIN)
-        add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
+    integration = await async_get_integration(hass, DOMAIN)
+    add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
+    hass.data[KEY_CARD_URL] = True
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    await _async_register_card(hass)
+    await _async_serve_card(hass)
 
     if DOMAIN in config:
         ir.async_create_issue(
@@ -143,6 +150,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: WeEatConfigEntry) -> bool:
+    # Also here, not only in async_setup: by now the frontend is certainly up.
+    await _async_serve_card(hass)
+
     coordinator = WeEatCoordinator(hass, entry)
     await coordinator.async_setup()
     await coordinator.async_config_entry_first_refresh()

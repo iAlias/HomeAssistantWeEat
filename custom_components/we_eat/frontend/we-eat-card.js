@@ -56,13 +56,24 @@ class WeEatCard extends HTMLElement {
     return 6;
   }
 
+  // The entity ids follow the device name, so renaming the device renames them.
+  // Fall back to recognising each sensor by the attributes only it has.
+  _find(hass, configured, signature) {
+    if (hass.states[configured]) return hass.states[configured];
+    const id = Object.keys(hass.states).find(
+      (e) => e.startsWith("sensor.") && signature.every((a) => a in hass.states[e].attributes),
+    );
+    return id ? hass.states[id] : undefined;
+  }
+
   set hass(hass) {
     this._hass = hass;
-    const menu = hass.states[this.config.entity];
-    const plan = hass.states[this.config.plan_entity];
-    const kcal = hass.states[this.config.kcal_entity];
+    const menu = this._find(hass, this.config.entity, ["meal", "today", "kcal_planned"]);
+    const plan = this._find(hass, this.config.plan_entity, ["days", "draft_days"]);
+    const kcal = this._find(hass, this.config.kcal_entity, ["by_meal", "entries"]);
     if (!menu || !plan || !kcal) {
-      this.replaceChildren(h("ha-card", { header: "We Eat" }, h("div", { class: "card-content" }, "Entità di We Eat non trovate.")));
+      this.replaceChildren(h("ha-card", { header: "We Eat" }, h("div", { class: "card-content" },
+        "Entità di We Eat non trovate. Controlla che l'integrazione sia configurata in Impostazioni → Dispositivi e servizi.")));
       return;
     }
     const signature = [menu, plan, kcal].map((s) => s.last_updated).join("|");

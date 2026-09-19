@@ -5,7 +5,7 @@
 [![Validate](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml/badge.svg)](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41bdf5)](https://hacs.xyz/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-41bdf5)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-0.2.0-orange)](custom_components/we_eat/manifest.json)
+[![Version](https://img.shields.io/badge/version-0.2.1-orange)](custom_components/we_eat/manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 🇮🇹 [Leggi in italiano](README.it.md)
@@ -161,6 +161,10 @@ entity: sensor.we_eat_menu
 | `entity` | `sensor.we_eat_menu` | the menu sensor |
 | `plan_entity` | `sensor.we_eat_piano_settimana` | the weekly plan sensor |
 | `kcal_entity` | `sensor.we_eat_kcal_consumate` | the calorie sensor |
+
+Renaming the device renames its entities, so these ids may not match on your system. You rarely need
+to set them: when an id doesn't resolve, the card recognises each of its three sensors by the
+attributes only that sensor has.
 
 - **Today** — each planned meal with its foods and kcal, a *Fatto come da piano* button per meal, a
   free-text box for extras (with an optional kcal field that skips the AI call), the kcal progress
