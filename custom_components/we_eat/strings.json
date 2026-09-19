@@ -1,0 +1,86 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "We Eat",
+        "description": "Scegli il provider AI per importare il piano e stimare le calorie, oppure \"Nessuno\" per inserire tutto a mano. La chiave resta in questo Home Assistant; le richieste inviano al provider il testo del piano e degli extra.",
+        "data": {
+          "provider": "Provider AI",
+          "api_key": "Chiave API",
+          "model": "Modello (vuoto = predefinito)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Il provider non risponde o la chiave non è valida.",
+      "api_key_required": "Serve la chiave API per questo provider."
+    },
+    "abort": {
+      "single_instance_allowed": "We Eat è già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni di We Eat",
+        "data": {
+          "provider": "Provider AI",
+          "api_key": "Chiave API",
+          "model": "Modello (vuoto = predefinito)",
+          "kcal_target": "Obiettivo kcal giornaliero (facoltativo)",
+          "time_colazione": "Inizio colazione",
+          "time_spuntino": "Inizio spuntino",
+          "time_pranzo": "Inizio pranzo",
+          "time_merenda": "Inizio merenda",
+          "time_cena": "Inizio cena"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Il provider non risponde o la chiave non è valida.",
+      "api_key_required": "Serve la chiave API per questo provider."
+    }
+  },
+  "issues": {
+    "yaml_deprecated": {
+      "title": "La configurazione YAML di We Eat è obsoleta",
+      "description": "Le ricette sono state importate come piatti preferiti. Rimuovi la sezione `we_eat:` da configuration.yaml e configura il provider AI da Impostazioni → Dispositivi e servizi."
+    }
+  },
+  "services": {
+    "import_plan": {
+      "name": "Importa piano",
+      "description": "Crea una bozza del piano settimanale da testo, PDF o foto.",
+      "fields": {
+        "text": {"name": "Testo", "description": "Il piano incollato come testo."},
+        "file_b64": {"name": "File (base64)", "description": "PDF o immagine codificati in base64 (max 3 MB)."},
+        "mime_type": {"name": "Tipo del file", "description": "Per esempio application/pdf o image/jpeg."}
+      }
+    },
+    "save_draft": {
+      "name": "Salva bozza",
+      "description": "Salva le correzioni fatte alla bozza del piano.",
+      "fields": {"days": {"name": "Giorni", "description": "Giorni da 0 (lunedì) a 6 (domenica) con i pasti e gli alimenti."}}
+    },
+    "confirm_plan": {"name": "Conferma piano", "description": "Rende attivo il piano in bozza."},
+    "log_plan_meal": {
+      "name": "Segna pasto come da piano",
+      "description": "Registra nel diario il pasto previsto oggi dal piano.",
+      "fields": {"meal": {"name": "Pasto", "description": "Il pasto da registrare."}}
+    },
+    "log_extra": {
+      "name": "Aggiungi extra",
+      "description": "Registra nel diario qualcosa che hai mangiato fuori piano.",
+      "fields": {
+        "text": {"name": "Descrizione", "description": "Cosa hai mangiato."},
+        "meal": {"name": "Pasto", "description": "A quale pasto associarlo."},
+        "kcal": {"name": "Kcal", "description": "Se le indichi non viene chiamata l'AI."}
+      }
+    },
+    "remove_entry": {
+      "name": "Rimuovi voce",
+      "description": "Elimina una voce dal diario.",
+      "fields": {"entry_id": {"name": "ID voce", "description": "L'identificativo della voce."}}
+    }
+  }
+}

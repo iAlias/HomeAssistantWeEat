@@ -1,20 +1,51 @@
-add_recipe:
-  description: "Add a recipe to the menu list."
+import_plan:
   fields:
-    recipe:
-      description: "Name of the recipe"
-      example: "Lasagne"
-remove_recipe:
-  description: "Remove a recipe from the menu list."
+    text:
+      selector:
+        text:
+          multiline: true
+    file_b64:
+      selector:
+        text:
+    mime_type:
+      example: "application/pdf"
+      selector:
+        text:
+save_draft:
   fields:
-    recipe:
-      description: "Name of the recipe"
-      example: "Pizza"
-set_recipes:
-  description: "Replace the whole list of recipes."
+    days:
+      required: true
+      selector:
+        object:
+confirm_plan:
+log_plan_meal:
   fields:
-    recipes:
-      description: "List of recipes"
-      example:
-        - Spaghetti
-        - Pizza
+    meal:
+      required: true
+      selector:
+        select:
+          options: [colazione, spuntino, pranzo, merenda, cena]
+log_extra:
+  fields:
+    text:
+      required: true
+      example: "2 fette di pizza"
+      selector:
+        text:
+    meal:
+      required: true
+      selector:
+        select:
+          options: [colazione, spuntino, pranzo, merenda, cena]
+    kcal:
+      selector:
+        number:
+          min: 0
+          max: 10000
+          mode: box
+remove_entry:
+  fields:
+    entry_id:
+      required: true
+      selector:
+        text:

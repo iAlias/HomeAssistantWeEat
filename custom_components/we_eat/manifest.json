@@ -2,10 +2,12 @@
   "domain": "we_eat",
   "name": "We Eat Menu",
   "codeowners": ["@iAlias"],
+  "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/iAlias/HomeAssistantWeEat",
-  "iot_class": "local_polling",
+  "iot_class": "calculated",
   "issue_tracker": "https://github.com/iAlias/HomeAssistantWeEat/issues",
-  "requirements": [],
-  "version": "0.1.0"
+  "requirements": ["pypdf>=4"],
+  "single_config_entry": true,
+  "version": "0.2.0"
 }

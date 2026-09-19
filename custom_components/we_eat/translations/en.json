@@ -1,0 +1,80 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "We Eat",
+        "description": "Pick the AI provider used to import the plan and estimate calories, or \"None\" to enter everything by hand. The key stays in this Home Assistant; requests send the plan and extras text to the provider.",
+        "data": {"provider": "AI provider", "api_key": "API key", "model": "Model (empty = default)"}
+      }
+    },
+    "error": {
+      "cannot_connect": "The provider does not answer or the key is invalid.",
+      "api_key_required": "This provider needs an API key."
+    },
+    "abort": {"single_instance_allowed": "We Eat is already configured."}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "We Eat options",
+        "data": {
+          "provider": "AI provider",
+          "api_key": "API key",
+          "model": "Model (empty = default)",
+          "kcal_target": "Daily kcal target (optional)",
+          "time_colazione": "Breakfast starts",
+          "time_spuntino": "Snack starts",
+          "time_pranzo": "Lunch starts",
+          "time_merenda": "Afternoon snack starts",
+          "time_cena": "Dinner starts"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "The provider does not answer or the key is invalid.",
+      "api_key_required": "This provider needs an API key."
+    }
+  },
+  "issues": {
+    "yaml_deprecated": {
+      "title": "We Eat YAML configuration is deprecated",
+      "description": "Your recipes were imported as favourite dishes. Remove the `we_eat:` section from configuration.yaml and set up the AI provider in Settings → Devices & services."
+    }
+  },
+  "services": {
+    "import_plan": {
+      "name": "Import plan",
+      "description": "Create a draft of the weekly plan from text, PDF or photo.",
+      "fields": {
+        "text": {"name": "Text", "description": "The plan pasted as text."},
+        "file_b64": {"name": "File (base64)", "description": "PDF or image encoded in base64 (max 3 MB)."},
+        "mime_type": {"name": "File type", "description": "For example application/pdf or image/jpeg."}
+      }
+    },
+    "save_draft": {
+      "name": "Save draft",
+      "description": "Save the edits made to the draft plan.",
+      "fields": {"days": {"name": "Days", "description": "Days 0 (Monday) to 6 (Sunday) with meals and foods."}}
+    },
+    "confirm_plan": {"name": "Confirm plan", "description": "Make the draft plan the active one."},
+    "log_plan_meal": {
+      "name": "Log meal as planned",
+      "description": "Record today's planned meal in the diary.",
+      "fields": {"meal": {"name": "Meal", "description": "The meal to record."}}
+    },
+    "log_extra": {
+      "name": "Add extra",
+      "description": "Record something you ate outside the plan.",
+      "fields": {
+        "text": {"name": "Description", "description": "What you ate."},
+        "meal": {"name": "Meal", "description": "Which meal to attach it to."},
+        "kcal": {"name": "Kcal", "description": "If given, the AI is not called."}
+      }
+    },
+    "remove_entry": {
+      "name": "Remove entry",
+      "description": "Delete a diary entry.",
+      "fields": {"entry_id": {"name": "Entry ID", "description": "The entry identifier."}}
+    }
+  }
+}
