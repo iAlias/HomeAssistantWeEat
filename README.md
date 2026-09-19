@@ -1,21 +1,20 @@
-# We Eat — il menu di casa per Home Assistant
+# We Eat — il piano del dietologo e le calorie, in Home Assistant
 
-**"Cosa si mangia oggi?" risolto da un sensore.** Una ricetta a caso dalla tua lista, rinnovata
-automaticamente a **pranzo (12:00)** e **cena (19:00)**, con una card per cambiarla al volo.
-
-Smetti di discutere su cosa cucinare: metti in Home Assistant la lista dei piatti di casa e lascia
-che il menu si proponga da solo. Se un piatto non va bene, lo cambi con un tocco direttamente dalla
-card.
+**Il piano settimanale del dietologo sempre sotto mano, e un diario che conta le calorie di quello che mangi.**
+Importi il piano da testo, PDF o foto; ogni giorno vedi cosa mangiare, segni "fatto" con un tocco e aggiungi gli extra
+scrivendo cosa hai mangiato.
 
 ---
 
 ## Cosa fa
 
-- Sceglie una **ricetta casuale** da una lista configurabile
-- La **rinnova due volte al giorno**, alle 12:00 e alle 19:00
-- Espone il sensore **`sensor.we_eat_menu`** (stato = piatto del giorno, attributo `recipes` = lista)
-- Offre **servizi** per aggiungere, rimuovere o sostituire le ricette
-- Include una **Lovelace card** (`custom:we-eat-card`) con modifica inline
+- **Importa il piano** da testo incollato, PDF (con testo) o foto, con un LLM. Il risultato è una *bozza* che controlli e correggi prima di attivarla.
+- **Mostra il piano della settimana** e il pasto del momento (`sensor.we_eat_menu`).
+- **Conta le calorie**: "Fatto come da piano" copia le kcal del piano; per gli extra scrivi (es. "2 fette di pizza") e l'AI stima le kcal.
+- **Obiettivo giornaliero** facoltativo, con le kcal rimanenti.
+- **Card Lovelace** con tre schede: Oggi, Settimana, Importa.
+
+> Le calorie stimate dall'AI sono approssimative e non sono un parere medico: segui sempre le indicazioni del tuo dietologo.
 
 ---
 
@@ -23,65 +22,68 @@ card.
 
 ### Con HACS (consigliato)
 
-1. Aggiungi questo repository come **Integrazione** personalizzata in HACS
-2. Installa e riavvia Home Assistant
+1. Aggiungi questo repository come **Integrazione** personalizzata in HACS.
+2. Installa e riavvia Home Assistant.
+3. **Impostazioni → Dispositivi e servizi → Aggiungi integrazione → We Eat**.
 
 ### A mano
 
-1. Copia la cartella `custom_components/we_eat` in `config/custom_components/`
-2. Copia `we_eat_card.js` nella cartella `www` e aggiungilo come risorsa Lovelace
-3. Riavvia Home Assistant
+1. Copia `custom_components/we_eat` in `config/custom_components/`.
+2. Copia `we_eat_card.js` in `config/www/` e aggiungilo come risorsa Lovelace (`/local/we_eat_card.js`, tipo *modulo JavaScript*).
+3. Riavvia Home Assistant.
 
 ---
 
 ## Configurazione
 
-Aggiungi a `configuration.yaml`:
+Dalla procedura guidata scegli il **provider AI** e inserisci la **chiave API**:
 
-```yaml
-we_eat:
-  recipes:
-    - Spaghetti
-    - Pizza
-    - Risotto
-```
+| Provider | Legge le foto | Note |
+|---|---|---|
+| OpenAI | sì | |
+| Google Gemini | sì | |
+| Anthropic Claude | sì | |
+| DeepSeek | no | solo testo e PDF con testo |
+| Nessuno | — | piano e kcal inseriti a mano |
 
-Se non specifichi nulla, la lista predefinita è *Spaghetti · Pizza · Risotto*.
-Dopo il riavvio trovi il sensore `sensor.we_eat_menu`.
+Il campo *Modello* può restare vuoto (si usa quello predefinito). Nelle **opzioni** puoi impostare l'obiettivo di kcal
+giornaliero e gli orari di inizio dei pasti (colazione, spuntino, pranzo, merenda, cena).
+
+**Privacy e costi:** con un provider AI attivo, il testo (o la foto) del piano e la descrizione degli extra vengono
+inviati a quel provider, e ogni importazione o stima nuova è una chiamata a pagamento. Le stime già fatte vengono
+ricordate e non si pagano due volte. La chiave resta in Home Assistant.
+
+**Aggiornamento dalla 0.1:** la sezione `we_eat:` di `configuration.yaml` viene importata una volta (le ricette diventano
+"piatti preferiti", attributo `favorites` del menu) e puoi poi rimuoverla. Il menu casuale non esiste più: lo sostituisce il piano.
 
 ---
+
+## Entità
+
+| Entità | Stato |
+|---|---|
+| `sensor.we_eat_menu` | pasto in corso (o prossimo) del piano di oggi |
+| `sensor.we_eat_piano_settimana` | `attivo`, `bozza` o `assente`; attributo `days` con la settimana |
+| `sensor.we_eat_kcal_consumate` | kcal di oggi; attributi `by_meal`, `entries` |
+| `sensor.we_eat_kcal_rimanenti` | obiettivo meno consumate (solo se impostato) |
 
 ## Card
 
 ```yaml
 type: custom:we-eat-card
 entity: sensor.we_eat_menu
-editable: true
 ```
-
-Con `editable: true` puoi aggiungere e rimuovere ricette direttamente dalla card.
-
----
 
 ## Servizi
 
-| Servizio | Campo | Cosa fa |
+| Servizio | Campi | Cosa fa |
 |---|---|---|
-| `we_eat.set_recipes` | `recipes` | Sostituisce l'intera lista |
-| `we_eat.add_recipe` | `recipe` | Aggiunge un piatto |
-| `we_eat.remove_recipe` | `recipe` | Rimuove un piatto |
-
-Esempio in un'automazione:
-
-```yaml
-action:
-  - service: we_eat.set_recipes
-    data:
-      recipes:
-        - Lasagne
-        - Minestrone
-        - Pollo al forno
-```
+| `we_eat.import_plan` | `text` oppure `file_b64` + `mime_type` | Crea la bozza del piano |
+| `we_eat.save_draft` | `days` | Salva le correzioni alla bozza |
+| `we_eat.confirm_plan` | — | Rende attiva la bozza |
+| `we_eat.log_plan_meal` | `meal` | Segna il pasto come da piano |
+| `we_eat.log_extra` | `text`, `meal`, `kcal` (facoltativo) | Aggiunge un extra; senza `kcal` le stima l'AI |
+| `we_eat.remove_entry` | `entry_id` | Elimina una voce del diario |
 
 ---
 
