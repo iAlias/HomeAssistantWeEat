@@ -74,9 +74,12 @@ This integration is not in the HACS default store; add it as a custom repository
 ### Manually
 
 1. Copy `custom_components/we_eat` into `config/custom_components/`
-2. Copy `we_eat_card.js` into `config/www/` and add it as a Lovelace resource
-   (`/local/we_eat_card.js`, type *JavaScript module*)
-3. Restart Home Assistant, then add the integration as in step 4 above
+2. Restart Home Assistant, then add the integration as in step 4 above
+
+**The card installs itself.** It ships inside the integration and is served and loaded
+automatically — there is no file to copy into `www/` and no Lovelace resource to register. If you
+added `/local/we_eat_card.js` by hand in an earlier version, remove that resource: it is no longer
+needed.
 
 ---
 
@@ -84,7 +87,8 @@ This integration is not in the HACS default store; add it as a custom repository
 
 1. **Pick your provider** in the setup wizard and paste the API key. The key is checked with a test
    call before the entry is created. Choosing *None* is fine — everything still works by hand.
-2. **Add the card** to a dashboard:
+2. **Add the card** to a dashboard — it is already available, no resource to register. Edit
+   dashboard → Add card → search **We Eat**, or paste:
    ```yaml
    type: custom:we-eat-card
    entity: sensor.we_eat_menu

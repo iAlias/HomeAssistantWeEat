@@ -11,6 +11,11 @@ CONF_RECIPES = "recipes"  # legacy YAML key, only used by the import
 
 PROVIDER_NONE = "none"
 
+# The card is served by the integration itself, so there is no Lovelace resource to add by hand.
+STATIC_URL = "/we_eat_static"
+CARD_FILENAME = "we-eat-card.js"
+KEY_FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
+
 DEFAULT_MEAL_TIMES = {
     "colazione": "07:30",
     "spuntino": "10:30",

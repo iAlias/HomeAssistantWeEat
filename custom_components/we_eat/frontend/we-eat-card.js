@@ -241,11 +241,15 @@ class WeEatCard extends HTMLElement {
     return { entity: "sensor.we_eat_menu" };
   }
 }
-customElements.define("we-eat-card", WeEatCard);
+// The integration registers this file itself. Guard the define so an old manual
+// Lovelace resource left over in www/ can't crash the page with a duplicate.
+if (!customElements.get("we-eat-card")) {
+  customElements.define("we-eat-card", WeEatCard);
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "we-eat-card",
-  name: "We Eat Card",
-  description: "Piano settimanale del dietologo, diario dei pasti e conteggio calorie.",
-});
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "we-eat-card",
+    name: "We Eat Card",
+    description: "Piano settimanale del dietologo, diario dei pasti e conteggio calorie.",
+  });
+}

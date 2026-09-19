@@ -1,9 +1,10 @@
 {
   "domain": "we_eat",
   "name": "We Eat Menu",
+  "after_dependencies": ["frontend"],
   "codeowners": ["@iAlias"],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["http"],
   "documentation": "https://github.com/iAlias/HomeAssistantWeEat",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/iAlias/HomeAssistantWeEat/issues",

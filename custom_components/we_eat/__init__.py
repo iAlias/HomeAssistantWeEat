@@ -4,18 +4,30 @@ from __future__ import annotations
 
 import base64
 import binascii
+from pathlib import Path
 
 import voluptuous as vol
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
-from .const import CONF_RECIPES, DOMAIN, MEALS
+from .const import (
+    CARD_FILENAME,
+    CONF_RECIPES,
+    DOMAIN,
+    KEY_FRONTEND_REGISTERED,
+    MEALS,
+    STATIC_URL,
+)
 from .coordinator import WeEatCoordinator
+
+FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 PLATFORMS = ["sensor"]
 MAX_FILE_BYTES = 3 * 1024 * 1024
@@ -56,7 +68,26 @@ def _coordinator(hass: HomeAssistant) -> WeEatCoordinator:
     return entries[0].runtime_data
 
 
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Serve the card and load it in the UI, so there is no resource to add by hand."""
+    if hass.data.get(KEY_FRONTEND_REGISTERED):
+        return
+    hass.data[KEY_FRONTEND_REGISTERED] = True
+
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), True)]
+    )
+    if "frontend" in hass.config.components:
+        # Imported here: the frontend package is absent in the test environment.
+        from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
+
+        integration = await async_get_integration(hass, DOMAIN)
+        add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    await _async_register_card(hass)
+
     if DOMAIN in config:
         ir.async_create_issue(
             hass,

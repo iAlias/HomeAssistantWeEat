@@ -75,9 +75,12 @@ L'integrazione non è nello store predefinito di HACS: aggiungila come repositor
 ### A mano
 
 1. Copia `custom_components/we_eat` in `config/custom_components/`
-2. Copia `we_eat_card.js` in `config/www/` e aggiungilo come risorsa Lovelace
-   (`/local/we_eat_card.js`, tipo *modulo JavaScript*)
-3. Riavvia Home Assistant e aggiungi l'integrazione come al punto 4 qui sopra
+2. Riavvia Home Assistant e aggiungi l'integrazione come al punto 4 qui sopra
+
+**La card si installa da sola.** È dentro l'integrazione, che la serve e la carica in automatico:
+non c'è nessun file da copiare in `www/` né nessuna risorsa Lovelace da registrare. Se in una
+versione precedente avevi aggiunto a mano `/local/we_eat_card.js`, rimuovi quella risorsa: non
+serve più.
 
 ---
 
@@ -86,7 +89,8 @@ L'integrazione non è nello store predefinito di HACS: aggiungila come repositor
 1. **Scegli il provider** nella procedura guidata e incolla la chiave API. La chiave viene verificata
    con una chiamata di prova prima di creare la voce. Puoi anche scegliere *Nessuno*: tutto continua a
    funzionare a mano.
-2. **Aggiungi la card** a una dashboard:
+2. **Aggiungi la card** a una dashboard — è già disponibile, nessuna risorsa da registrare. Modifica
+   dashboard → Aggiungi card → cerca **We Eat**, oppure incolla:
    ```yaml
    type: custom:we-eat-card
    entity: sensor.we_eat_menu
