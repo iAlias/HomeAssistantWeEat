@@ -22,8 +22,10 @@ from .const import (
     CONF_RECIPES,
     DOMAIN,
     KEY_CARD_URL,
+    KEY_PANEL,
     KEY_STATIC_PATH,
     MEALS,
+    PANEL_FILENAME,
     STATIC_URL,
 )
 from .coordinator import WeEatCoordinator
@@ -70,7 +72,7 @@ def _coordinator(hass: HomeAssistant) -> WeEatCoordinator:
 
 
 async def _async_serve_card(hass: HomeAssistant) -> None:
-    """Serve the card and load it in the UI, so there is no resource to add by hand.
+    """Serve the card, load it in the UI and register the sidebar panel.
 
     Safe to call repeatedly: each half is flagged only once it has actually succeeded, so a
     failure — or a frontend that is not up yet — is retried on the next call instead of being
@@ -82,14 +84,34 @@ async def _async_serve_card(hass: HomeAssistant) -> None:
         )
         hass.data[KEY_STATIC_PATH] = True
 
-    if hass.data.get(KEY_CARD_URL) or "frontend" not in hass.config.components:
+    if "frontend" not in hass.config.components:
         return
     # Imported here: the frontend package is absent in the test environment.
-    from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
+    from homeassistant.components.frontend import (  # noqa: PLC0415
+        add_extra_js_url,
+        async_register_built_in_panel,
+    )
 
-    integration = await async_get_integration(hass, DOMAIN)
-    add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
-    hass.data[KEY_CARD_URL] = True
+    if not hass.data.get(KEY_CARD_URL):
+        integration = await async_get_integration(hass, DOMAIN)
+        add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
+        hass.data[KEY_CARD_URL] = True
+
+    if not hass.data.get(KEY_PANEL):
+        async_register_built_in_panel(
+            hass,
+            DOMAIN,
+            "We Eat",
+            "mdi:silverware-fork-knife",
+            "we-eat",
+            config={
+                "_panel_custom": {
+                    "name": "we-eat-panel",
+                    "module_url": f"{STATIC_URL}/{PANEL_FILENAME}",
+                }
+            },
+        )
+        hass.data[KEY_PANEL] = True
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:

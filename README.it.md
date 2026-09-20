@@ -48,7 +48,8 @@ registri semplicemente scrivendolo ("due fette di pizza").
   scrivi cosa hai mangiato e l'AI stima le kcal.
 - **Obiettivo kcal giornaliero** facoltativo, con barra di avanzamento e le kcal rimanenti come
   sensore a sé.
-- Include una **card Lovelace** con tre schede — Oggi, Settimana, Importa — editor della bozza compreso.
+- Include una **card Lovelace** con tre schede — Oggi, Settimana, Importa — editor della bozza compreso,
+  e un **pannello laterale "We Eat"** già pronto: appare da solo, senza aggiungere nulla a mano.
 - **Funziona anche senza AI**: scegli provider *Nessuno* e inserisci piano e kcal a mano.
 
 ---
@@ -77,10 +78,10 @@ L'integrazione non è nello store predefinito di HACS: aggiungila come repositor
 1. Copia `custom_components/we_eat` in `config/custom_components/`
 2. Riavvia Home Assistant e aggiungi l'integrazione come al punto 4 qui sopra
 
-**La card si installa da sola.** È dentro l'integrazione, che la serve e la carica in automatico:
-non c'è nessun file da copiare in `www/` né nessuna risorsa Lovelace da registrare. Se in una
-versione precedente avevi aggiunto a mano `/local/we_eat_card.js`, rimuovi quella risorsa: non
-serve più.
+**La card si installa da sola**, e con lei un **pannello "We Eat" nella barra laterale**: l'integrazione
+serve e carica entrambi in automatico, quindi non c'è nessun file da copiare in `www/`, nessuna
+risorsa Lovelace da registrare e nessuna dashboard da creare. Se in una versione precedente avevi
+aggiunto a mano `/local/we_eat_card.js`, rimuovi quella risorsa: non serve più.
 
 ---
 
@@ -89,8 +90,9 @@ serve più.
 1. **Scegli il provider** nella procedura guidata e incolla la chiave API. La chiave viene verificata
    con una chiamata di prova prima di creare la voce. Puoi anche scegliere *Nessuno*: tutto continua a
    funzionare a mano.
-2. **Aggiungi la card** a una dashboard — è già disponibile, nessuna risorsa da registrare. Modifica
-   dashboard → Aggiungi card → cerca **We Eat**, oppure incolla:
+2. **Apri il pannello "We Eat"** dalla barra laterale: è già pronto, con la card dentro. In alternativa
+   puoi aggiungere la card a una dashboard qualsiasi — Modifica dashboard → Aggiungi card → cerca
+   **We Eat**, oppure incolla:
    ```yaml
    type: custom:we-eat-card
    entity: sensor.we_eat_menu
@@ -154,6 +156,9 @@ pasti e subito dopo ogni modifica al piano o al diario.
 ---
 
 ## La card
+
+Il pannello laterale **We Eat** è questa stessa card, già montata per te. La card singola serve solo
+se preferisci averla dentro una tua dashboard.
 
 ```yaml
 type: custom:we-eat-card
