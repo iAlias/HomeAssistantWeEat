@@ -5,7 +5,7 @@
 [![Validate](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml/badge.svg)](https://github.com/iAlias/HomeAssistantWeEat/actions/workflows/validate.yml)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41bdf5)](https://hacs.xyz/)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-41bdf5)](https://www.home-assistant.io/)
-[![Version](https://img.shields.io/badge/version-0.2.1-orange)](custom_components/we_eat/manifest.json)
+[![Version](https://img.shields.io/badge/version-0.2.2-orange)](custom_components/we_eat/manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 🇮🇹 [Leggi in italiano](README.it.md)

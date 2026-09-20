@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import logging
 from pathlib import Path
 
 import voluptuous as vol
@@ -30,7 +31,9 @@ from .const import (
 )
 from .coordinator import WeEatCoordinator
 
-FRONTEND_DIR = Path(__file__).parent / "frontend"
+_LOGGER = logging.getLogger(__name__)
+
+INTEGRATION_DIR = Path(__file__).parent / "frontend"
 
 PLATFORMS = ["sensor"]
 MAX_FILE_BYTES = 3 * 1024 * 1024
@@ -79,10 +82,22 @@ async def _async_serve_card(hass: HomeAssistant) -> None:
     silently skipped forever.
     """
     if not hass.data.get(KEY_STATIC_PATH):
+        # One explicit route per file, never a directory: Home Assistant turns a missing static
+        # directory into a silent 404, which is invisible until the card refuses to load.
+        present = [n for n in (CARD_FILENAME, PANEL_FILENAME) if (INTEGRATION_DIR / n).is_file()]
+        if missing := [n for n in (CARD_FILENAME, PANEL_FILENAME) if n not in present]:
+            _LOGGER.error(
+                "File della card mancanti in %s: %s. Reinstalla We Eat da HACS",
+                INTEGRATION_DIR,
+                ", ".join(missing),
+            )
         await hass.http.async_register_static_paths(
-            [StaticPathConfig(STATIC_URL, str(FRONTEND_DIR), True)]
+            [
+                StaticPathConfig(f"{STATIC_URL}/{name}", str(INTEGRATION_DIR / name), True)
+                for name in present
+            ]
         )
-        hass.data[KEY_STATIC_PATH] = True
+        hass.data[KEY_STATIC_PATH] = not missing
 
     if "frontend" not in hass.config.components:
         return

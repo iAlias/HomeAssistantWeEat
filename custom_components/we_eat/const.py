@@ -12,6 +12,8 @@ CONF_RECIPES = "recipes"  # legacy YAML key, only used by the import
 PROVIDER_NONE = "none"
 
 # The card is served by the integration itself, so there is no Lovelace resource to add by hand.
+# The files live in the integration folder rather than in a subfolder: HACS does not always
+# download nested directories, and a missing static directory fails silently in Home Assistant.
 STATIC_URL = "/we_eat_static"
 CARD_FILENAME = "we-eat-card.js"
 PANEL_FILENAME = "we-eat-panel.js"
