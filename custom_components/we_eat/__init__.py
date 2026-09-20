@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import binascii
 import logging
-from pathlib import Path
 
 import voluptuous as vol
 
@@ -22,18 +21,19 @@ from .const import (
     CARD_FILENAME,
     CONF_RECIPES,
     DOMAIN,
+    FRONTEND_FILES,
+    INTEGRATION_DIR,
     KEY_CARD_URL,
     KEY_PANEL,
     KEY_STATIC_PATH,
     MEALS,
     PANEL_FILENAME,
+    PANEL_URL_PATH,
     STATIC_URL,
 )
 from .coordinator import WeEatCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-
-INTEGRATION_DIR = Path(__file__).parent / "frontend"
 
 PLATFORMS = ["sensor"]
 MAX_FILE_BYTES = 3 * 1024 * 1024
@@ -84,8 +84,8 @@ async def _async_serve_card(hass: HomeAssistant) -> None:
     if not hass.data.get(KEY_STATIC_PATH):
         # One explicit route per file, never a directory: Home Assistant turns a missing static
         # directory into a silent 404, which is invisible until the card refuses to load.
-        present = [n for n in (CARD_FILENAME, PANEL_FILENAME) if (INTEGRATION_DIR / n).is_file()]
-        if missing := [n for n in (CARD_FILENAME, PANEL_FILENAME) if n not in present]:
+        present = [n for n in FRONTEND_FILES if (INTEGRATION_DIR / n).is_file()]
+        if missing := [n for n in FRONTEND_FILES if n not in present]:
             _LOGGER.error(
                 "File della card mancanti in %s: %s. Reinstalla We Eat da HACS",
                 INTEGRATION_DIR,
@@ -101,30 +101,27 @@ async def _async_serve_card(hass: HomeAssistant) -> None:
 
     if "frontend" not in hass.config.components:
         return
-    # Imported here: the frontend package is absent in the test environment.
-    from homeassistant.components.frontend import (  # noqa: PLC0415
-        add_extra_js_url,
-        async_register_built_in_panel,
-    )
+    # Imported here: these packages are absent in the test environment.
+    from homeassistant.components.frontend import add_extra_js_url  # noqa: PLC0415
+    from homeassistant.components.panel_custom import async_register_panel  # noqa: PLC0415
+
+    integration = await async_get_integration(hass, DOMAIN)
 
     if not hass.data.get(KEY_CARD_URL):
-        integration = await async_get_integration(hass, DOMAIN)
         add_extra_js_url(hass, f"{STATIC_URL}/{CARD_FILENAME}?v={integration.version}")
         hass.data[KEY_CARD_URL] = True
 
     if not hass.data.get(KEY_PANEL):
-        async_register_built_in_panel(
+        # Through panel_custom, never frontend.async_register_built_in_panel directly: that one
+        # wants the name of a panel built into the frontend, and anything else renders a blank
+        # page. panel_custom passes the literal "custom" and the webcomponent name separately.
+        async_register_panel(
             hass,
-            DOMAIN,
-            "We Eat",
-            "mdi:silverware-fork-knife",
-            "we-eat",
-            config={
-                "_panel_custom": {
-                    "name": "we-eat-panel",
-                    "module_url": f"{STATIC_URL}/{PANEL_FILENAME}",
-                }
-            },
+            frontend_url_path=PANEL_URL_PATH,
+            webcomponent_name="we-eat-panel",
+            sidebar_title="We Eat",
+            sidebar_icon="mdi:silverware-fork-knife",
+            module_url=f"{STATIC_URL}/{PANEL_FILENAME}?v={integration.version}",
         )
         hass.data[KEY_PANEL] = True
 

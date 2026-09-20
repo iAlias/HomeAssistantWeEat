@@ -1,5 +1,7 @@
 """Constants for We Eat (no Home Assistant imports, so they can be unit-tested)."""
 
+from pathlib import Path
+
 DOMAIN = "we_eat"
 
 CONF_PROVIDER = "provider"
@@ -17,6 +19,10 @@ PROVIDER_NONE = "none"
 STATIC_URL = "/we_eat_static"
 CARD_FILENAME = "we-eat-card.js"
 PANEL_FILENAME = "we-eat-panel.js"
+PANEL_URL_PATH = "we-eat"
+# Resolved here, next to the files themselves, so a test can check they are really there.
+INTEGRATION_DIR = Path(__file__).parent
+FRONTEND_FILES = (CARD_FILENAME, PANEL_FILENAME)
 KEY_STATIC_PATH = f"{DOMAIN}_static_path"
 KEY_CARD_URL = f"{DOMAIN}_card_url"
 KEY_PANEL = f"{DOMAIN}_panel"
